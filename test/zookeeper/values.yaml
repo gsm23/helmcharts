@@ -1,0 +1,106 @@
+# Default values for zookeeper.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameSpace: prees
+replicaCount: 3
+
+podManagementPolicy: OrderedReady
+minAvailable: 3
+
+image:
+  repository: confluentinc/cp-zookeeper
+  zkversion: 3.3.1
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets:
+
+update:  
+#  updateStrategy: RollingUpdate
+  updateStrategy: OnDelete
+  rollingParams:
+    updatePeriodSeconds: 10
+    intervalSeconds: 1
+    timeoutSeconds: 600
+    maxSurge: 1                     # how many pods we can add at a time
+    maxUnavailable: 0               # maxUnavailable define how many pods can be unavailable during the rolling update
+    pre:
+       failurePolicy: Abort
+## Zookeeper Configuration
+## ref: https://zookeeper.apache.org/doc/r3.4.10/zookeeperAdmin.html#sc_configuration
+## ref: https://docs.confluent.io/current/zookeeper/deployment.html#important-configuration-options
+Configuration:
+  serverPort: 2888
+  leaderElectionPort: 3888
+  clientPort: 2181
+  tickTime: 2000
+  syncLimit: 5
+  maxClientCnxns: 60
+  autoPurgeSnapRetainCount: 3
+  autoPurgePurgeInterval: 24
+  heapOptions: "-Xms512M -Xmx512M"
+  servers: "zookeeper-0.zookeeper-headless.prod-es.svc.cluster.local:2888:3888;zookeeper-1.zookeeper-headless.prod-es.svc.cluster.local:2888:3888;zookeeper-2.zookeeper-headless.prod-es.svc.cluster.local:2888:3888"
+
+persistencestorage:
+  enabled: true
+  ## Size for Data dir, where ZooKeeper will store the in-memory database snapshots.
+  dataDirSize: 5Gi
+  # dataDirStorageClass: ""
+  ## A dedicated log device to be used, to separate logging and snaphots.
+  dataLogDirSize: 5Gi
+  # dataLogDirStorageClass: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  serverPort: 2888
+  leaderElectionPort: 3888
+  clientPort: 2181
+
+ingress:
+  enabled: false
+  #path: /
+  #hosts:
+  #  - chart-example.local
+  #tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+jmx:
+   port: 5555
+   java_opts:
+   jmx_opts:
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+configMaps:
+  clientPort: "{{ env['ZOOKEEPER_CLIENT_PORT'] }}"
+# Writing the template for the template as helm create issue
+  property: "{{property}}"
+  k: "{{env[k]}}"
+
+# templating for the server loop
+  serverloop: "server.{{ loop.index }}"
+  serverloopvalue: "{{server}}"
+
+# templating for the group loop
+  grouploop: "group.{{ loop.index }}"
+  grooploopvalue: "{{group}}"
+
+# temllate for weight loop
+  weightloop: "weight.{{ loop.index }}"
+  weightloopvalue: "{{weight}}"

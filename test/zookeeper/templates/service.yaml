@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.nameSpace }}-{{ include "zookeeper.fullname" . }}
+  labels:
+    app: {{ .Values.nameSpace }}-{{ include "zookeeper.name" . }}
+    chart: {{ include "zookeeper.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.clientPort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .Values.nameSpace }}-{{ include "zookeeper.name" . }}
+    release: {{ .Release.Name }}

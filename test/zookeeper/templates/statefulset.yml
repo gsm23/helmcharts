@@ -1,0 +1,151 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.nameSpace }}-{{ template "zookeeper.fullname" . }}
+  labels:
+    app: {{ template "zookeeper.name" . }}
+    chart: {{ template "zookeeper.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  serviceName: {{ template "zookeeper.fullname" . }}-headless
+  podManagementPolicy: {{ .Values.podManagementPolicy }}
+  replicas: {{ default 3 .Values.replicaCount }}
+  updateStrategy:
+    type: {{ .Values.update.updateStrategy }}
+#        rollingParams:
+#        updatePeriodSeconds: {{ .Values.update.updatePeriodSeconds }}
+#        intervalSeconds: {{ .Values.update.intervalSeconds }}
+#        timeoutSeconds: {{ .Values.update.timeoutSeconds }}
+#        maxSurge: {{ .Values.update.maxSurge }}                     # how many pods we can add at a time
+#        maxUnavailable: {{ .Values.update.maxUnavailable }}               # maxUnavailable define how many pods can be unavailable during the rolling update
+# The selector field tell the deployment which pod to update with
+# the new version. This field is optional, but if you have labels
+# uniquely defined for the pod, in this case the "version" label,
+# then we need to redefine the matchLabels and eliminate the version
+# field from there.
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.nameSpace }}-{{ template "zookeeper.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - {{ .Values.nameSpace }}-{{ template "zookeeper.name" . }}
+                  - key: "release"
+                    operator: In
+                    values:
+                    - {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: {{ template "zookeeper.name" . }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.zkversion }}"
+        imagePullPolicy: "{{ .Values.image.imagePullPolicy }}"
+#        livenessProbe:
+#          exec:
+#            command: ['/bin/bash', '-c', 'echo "ruok" | nc -w 2 -q 2 localhost 2181 | grep imok']
+#          initialDelaySeconds: 1
+#          timeoutSeconds: 3
+        ports:
+        - containerPort: {{ .Values.Configuration.clientPort }}
+          name: client
+        - containerPort: {{ .Values.Configuration.serverPort }}
+          name: server
+        - containerPort: {{ .Values.Configuration.leaderElectionPort }}
+          name: leader-election
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        env:
+        - name : KAFKA_HEAP_OPTS
+          value: "{{ .Values.Configuration.heapOptions }}"
+        {{- if .Values.jmx.port }}
+        - name : KAFKA_JMX_PORT
+          value: "{{ .Values.jmx.port }}"
+        {{- end }}
+        - name : ZOOKEEPER_TICK_TIME
+          value: "{{ .Values.Configuration.tickTime }}"
+        - name : ZOOKEEPER_SYNC_LIMIT
+          value: "{{ .Values.Configuration.syncLimit }}"
+        - name : ZOOKEEPER_INIT_LIMIT
+          value: "{{ .Values.Configuration.initLimit }}"
+        - name : ZOOKEEPER_MAX_CLIENT_CNXNS
+          value: "{{ .Values.Configuration.maxClientCnxns }}"
+        - name : ZOOKEEPER_AUTOPURGE_SNAP_RETAIN_COUNT
+          value: "{{ .Values.Configuration.autoPurgeSnapRetainCount}}"
+        - name : ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL
+          value: "{{ .Values.Configuration.autoPurgePurgeInterval}}"
+        - name: ZOOKEEPER_CLIENT_PORT
+          value: "{{ .Values.Configuration.clientPort }}"
+        - name : ZOOKEEPER_SERVERS
+          valueFrom:
+            configMapKeyRef:
+                name: {{ .Values.nameSpace }}-{{ template "zookeeper.name" . }}-cm
+                key: servers
+         # value: {{ .Values.Configuration.servers }}
+        # ZOOKEEPER_SERVER_ID is required just to pass cp-zookeeper ensure script for env check,
+        # the value(metadata.mame) is not used and will be overwritten in command part
+        - name: ZOOKEEPER_SERVER_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        command:
+        - "bash"
+        - "-c"
+        - "ZOOKEEPER_SERVER_ID=$((${HOSTNAME##*-}+1)) && /etc/confluent/docker/run"
+        volumeMounts:
+        - name: datadir
+          mountPath: /var/lib/zookeeper/data
+        - name: datalogdir
+          mountPath: /var/lib/zookeeper/log
+#      {{- if .Values.image.imagePullSecrets }}
+#      imagePullSecrets:
+#{{ toYaml .Values.image.imagePullSecrets | indent 8 }}
+#      {{- end }}
+      volumes:
+      {{ if not .Values.persistencestorage.enabled }}
+      - name: datadir
+        emptyDir: {}
+      - name: datalogdir
+        emptyDir: {}
+      {{- end }}
+  {{- if .Values.persistencestorage.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: datadir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: "{{ .Values.persistencestorage.dataDirSize }}"
+      {{- if .Values.persistencestorage.dataDirStorageClass }}
+      {{- if (eq "-" .Values.persistencestorage.dataDirStorageClass) }}
+      storageClassName: ""
+      {{- else }}
+      storageClassName: "{{ .Values.persistencestorage.dataDirStorageClass }}"
+      {{- end }}
+      {{- end }}
+  - metadata:
+      name: datalogdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: "{{ .Values.persistencestorage.dataLogDirSize }}"
+      {{- if .Values.persistencestorage.dataLogDirStorageClass }}
+      {{- if (eq "-" .Values.persistencestorage.dataLogDirStorageClass) }}
+      storageClassName: ""
+      {{- else }}
+      storageClassName: "{{ .Values.persistencestorage.dataLogDirStorageClass }}"
+      {{- end }}
+      {{- end }}
+      {{- end }}

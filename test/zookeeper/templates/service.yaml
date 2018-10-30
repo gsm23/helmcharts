@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.nameSpace }}-{{ include "zookeeper.fullname" . }}
+  name: {{ .Values.Name }}
   labels:
-    app: {{ .Values.nameSpace }}-{{ include "zookeeper.name" . }}
+    app: {{ .Values.Name }}
     chart: {{ include "zookeeper.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -15,5 +15,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: {{ .Values.nameSpace }}-{{ include "zookeeper.name" . }}
+    app: {{ .Values.Name }}-{{ .Values.nameSpace }}
     release: {{ .Release.Name }}

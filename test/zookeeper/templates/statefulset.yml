@@ -1,14 +1,14 @@
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
-  name: {{ .Values.nameSpace }}-{{ template "zookeeper.fullname" . }}
+  name: {{ .Values.nameSpace }}-{{ .Values.Name }}
   labels:
-    app: {{ template "zookeeper.name" . }}
+    app: {{ .Values.Name }}
     chart: {{ template "zookeeper.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  serviceName: {{ template "zookeeper.fullname" . }}-headless
+  serviceName: {{ .Values.Name }}-svc
   podManagementPolicy: {{ .Values.podManagementPolicy }}
   replicas: {{ default 3 .Values.replicaCount }}
   updateStrategy:
@@ -28,7 +28,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ .Values.nameSpace }}-{{ template "zookeeper.name" . }}
+        app: {{ .Values.nameSpace }}-{{ .Values.Name }}
         release: {{ .Release.Name }}
     spec:
       affinity:
@@ -41,7 +41,7 @@ spec:
                   - key: "app"
                     operator: In
                     values:
-                    - {{ .Values.nameSpace }}-{{ template "zookeeper.name" . }}
+                    - {{ .Values.nameSpace }}-{{ .Values.Name }}
                   - key: "release"
                     operator: In
                     values:
@@ -89,7 +89,7 @@ spec:
         - name : ZOOKEEPER_SERVERS
           valueFrom:
             configMapKeyRef:
-                name: {{ .Values.nameSpace }}-{{ template "zookeeper.name" . }}-cm
+                name: {{ .Values.nameSpace }}-{{ .Values.Name }}-cm
                 key: servers
          # value: {{ .Values.Configuration.servers }}
         # ZOOKEEPER_SERVER_ID is required just to pass cp-zookeeper ensure script for env check,

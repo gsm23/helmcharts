@@ -2,6 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+Name: zk
 nameSpace: prees
 replicaCount: 3
 
@@ -38,7 +39,6 @@ Configuration:
   autoPurgeSnapRetainCount: 3
   autoPurgePurgeInterval: 24
   heapOptions: "-Xms512M -Xmx512M"
-  servers: "zookeeper-0.zookeeper-headless.prod-es.svc.cluster.local:2888:3888;zookeeper-1.zookeeper-headless.prod-es.svc.cluster.local:2888:3888;zookeeper-2.zookeeper-headless.prod-es.svc.cluster.local:2888:3888"
 
 persistencestorage:
   enabled: true

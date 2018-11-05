@@ -1,0 +1,14 @@
+# Root level Value file
+## ------------------------------------------------------
+## Zookeeper
+## ------------------------------------------------------
+zookeeper:
+  enabled: true
+  replicaCount: 3
+  Name: zk
+  nameSpace: prees
+image:
+  repository: confluentinc/cp-zookeeper
+  zkversion: 3.3.1
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets:

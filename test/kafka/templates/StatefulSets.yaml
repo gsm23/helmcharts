@@ -67,3 +67,4 @@ template:
         env:
         {{- range .Values.envlists }}
         - name: {{ . | title | quote }}
+        {{- end }}

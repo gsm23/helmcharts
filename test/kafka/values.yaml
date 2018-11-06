@@ -44,19 +44,30 @@ Configuration:
    PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
 
 envlists:
-  - KAFKA_HEAP_OPTS : "adaqad"
-  - KAFKA_OPTS
-  - JMX_PORT
-  - KAFKA_JMX_OPTS
-  - KAFKA_ZOOKEEPER_CONNECT
-  - KAFKA_LOG_RETENTION_BITES
-  - KAFKA_DELETE_TOPIC_ENABLE
-  - KAFKA_NUM_NETWORK_THREADS
-  - KAFKA_NUM_IO_THREADS
-  - KAFKA_NUM_REPLICA_FETCHERS
-  - KAFKA_DEFAULT_REPLICATION_FACTOR
-  - KAFKA_NUM_PARTITIONS
-  - KAFKA_BATCH_SIZE
+  - name: KAFKA_HEAP_OPTS
+    value : "-Xms1g -Xmx1g -XX:MetaspaceSize=96m -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80"
+  - name: KAFKA_OPTS
+    value: "-Dlogging.level=INFO"
+  - name: JMX_PORT
+    value: value: "9096"
+  - name: KAFKA_JMX_OPTS
+    value: ""
+  - name: KAFKA_LOG_RETENTION_BITES
+    value: "1073741824"
+  - name: KAFKA_DELETE_TOPIC_ENABLE
+    value: "true"
+  - name: KAFKA_NUM_NETWORK_THREADS
+    value: 3
+  - name: KAFKA_NUM_IO_THREADS
+    value: 3
+  - name: KAFKA_NUM_REPLICA_FETCHERS
+    value: 5
+  - name: KAFKA_DEFAULT_REPLICATION_FACTOR
+    value: 3
+  - name: KAFKA_NUM_PARTITIONS
+    value: 3
+  - name: KAFKA_BATCH_SIZE
+    value: 16384
 
 persistencestorage:
   enabled: true

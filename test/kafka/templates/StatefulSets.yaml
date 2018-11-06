@@ -47,9 +47,11 @@ template:
                   - {{ .Release.Name }}
             topologyKey: "kubernetes.io/hostname"
     containers:
-      - name: {{ .Values.nameSpace }}-{{ .Values.Name }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.kafka-version }}"
-        imagePullPolicy: "{{ .Values.image.imagePullPolicy }}"
+    - name: {{ .Values.nameSpace }}-{{ .Values.Name }}
+      image: "{{ .Values.image.repository }}:{{ .Values.image.kafka-version }}"
+      imagePullPolicy: "{{ .Values.image.imagePullPolicy }}"
+      resources:
+{{ toYaml .Values.resources | indent 10 }}
 #        resources:
 #          requests:
 #            memory: "{{ .Values.resources.requests.memory }}"
@@ -57,14 +59,14 @@ template:
 #          limits:
 #            memory: "{{ .Values.resources.limits.memory }}"
 #            cpu: "{{ .Values.resources.limits.cpu }}"
-        ports:
-          - containerPort: "{{ .Values.Configuration.containerPort }}"
-            name: {{ .Values.nameSpace }}-{{ .Values.Name }}
-            command:
-            - sh
-            - -c
-            - "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://{{ .Values.nameSpace }}-{{ .Values.Name }}-${HOSTNAME##*-}.{{ .Values.nameSpace }}-{{ .Values.Name }}-svc.{{ .Values.nameSpace }}.svc.cluster.local:{{ .Values.Configuration.containerPort}}
-        env:
-        {{- range .Values.envlists }}
-        - name: {{ . | title | quote }}
-        {{- end }}
+      ports:
+      - containerPort: "{{ .Values.Configuration.containerPort }}"
+        name: {{ .Values.nameSpace }}-{{ .Values.Name }}
+      command:
+      - sh
+      - -c
+      - "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://{{ .Values.nameSpace }}-{{ .Values.Name }}-${HOSTNAME##*-}.{{ .Values.nameSpace }}-{{ .Values.Name }}-svc.{{ .Values.nameSpace }}.svc.cluster.local:{{ .Values.Configuration.containerPort}}
+      env:
+      {{- range .Values.envlists }}
+      - name: {{ . | title | quote }}
+      {{- end }}

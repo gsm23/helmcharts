@@ -52,13 +52,6 @@ template:
       imagePullPolicy: "{{ .Values.image.imagePullPolicy }}"
       resources:
 {{ toYaml .Values.resources | indent 10 }}
-#        resources:
-#          requests:
-#            memory: "{{ .Values.resources.requests.memory }}"
-#            cpu: "{{ .Values.resources.requests.cpu }}"
-#          limits:
-#            memory: "{{ .Values.resources.limits.memory }}"
-#            cpu: "{{ .Values.resources.limits.cpu }}"
       ports:
       - containerPort: "{{ .Values.Configuration.containerPort }}"
         name: {{ .Values.nameSpace }}-{{ .Values.Name }}

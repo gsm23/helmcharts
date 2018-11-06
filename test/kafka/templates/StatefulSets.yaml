@@ -1,0 +1,69 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.nameSpace }}-{{ .Values.Name }}
+  labels:
+    app: {{ .Values.Name }}
+    chart: {{ template "kafka.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    spec:
+      serviceName: {{ .Values.nameSpace }}-{{ .Values.Name }}-svc
+      podManagementPolicy: {{ .Values.podManagementPolicy }}
+      replicas: {{ default 3 .Values.replicaCount }}
+      updateStrategy:
+        type: {{ .Values.update.updateStrategy }}
+    #        rollingParams:
+    #        updatePeriodSeconds: {{ .Values.update.updatePeriodSeconds }}
+    #        intervalSeconds: {{ .Values.update.intervalSeconds }}
+    #        timeoutSeconds: {{ .Values.update.timeoutSeconds }}
+    #        maxSurge: {{ .Values.update.maxSurge }}                     # how many pods we can add at a time
+    #        maxUnavailable: {{ .Values.update.maxUnavailable }}               # maxUnavailable define how many pods can be unavailable during the rolling update
+    # The selector field tell the deployment which pod to update with
+    # the new version. This field is optional, but if you have labels
+    # uniquely defined for the pod, in this case the "version" label,
+    # then we need to redefine the matchLabels and eliminate the version
+    # field from there.
+template:
+  metadata:
+    labels:
+      app: {{ .Values.nameSpace }}-{{ .Values.Name }}
+      release: {{ .Release.Name }}
+  spec:
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app"
+                  operator: In
+                  values:
+                  - {{ .Values.nameSpace }}-{{ .Values.Name }}
+                - key: "release"
+                  operator: In
+                  values:
+                  - {{ .Release.Name }}
+            topologyKey: "kubernetes.io/hostname"
+    containers:
+      - name: {{ .Values.nameSpace }}-{{ .Values.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.kafka-version }}"
+        imagePullPolicy: "{{ .Values.image.imagePullPolicy }}"
+#        resources:
+#          requests:
+#            memory: "{{ .Values.resources.requests.memory }}"
+#            cpu: "{{ .Values.resources.requests.cpu }}"
+#          limits:
+#            memory: "{{ .Values.resources.limits.memory }}"
+#            cpu: "{{ .Values.resources.limits.cpu }}"
+        ports:
+          - containerPort: "{{ .Values.Configuration.containerPort }}"
+            name: {{ .Values.nameSpace }}-{{ .Values.Name }}
+            command:
+            - sh
+            - -c
+            - "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://{{ .Values.nameSpace }}-{{ .Values.Name }}-${HOSTNAME##*-}.{{ .Values.nameSpace }}-{{ .Values.Name }}-svc.{{ .Values.nameSpace }}.svc.cluster.local:{{ .Values.Configuration.containerPort}}
+        env:
+        {{- range .Values.envlists }}
+        - name: {{ . | title | quote }}

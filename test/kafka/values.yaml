@@ -32,18 +32,32 @@ update:
 
 Configuration:
   nodeport:
-    
+  containerPort: 9090
   "log.dirs": /opt/kafka/data/logs
   "offsets.topic.replication.factor": 3
   # "default.replication.factor": 3
   # "min.insync.replicas": 2
   # "auto.create.topics.enable": false
   "advertised.listeners": |-
-   EXTERNAL://${HOST_IP}:$((31090 + ${KAFKA_BROKER_ID}))
+   EXTERNAL://${HOST_IP}:$((3090 + ${KAFKA_BROKER_ID}))
   "listener.security.protocol.map": |-
    PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
 
-
+envlists:
+  - KAFKA_HEAP_OPTS
+  - KAFKA_OPTS
+  - JMX_PORT
+  - KAFKA_JMX_OPTS
+  - KAFKA_ZOOKEEPER_CONNECT
+  - KAFKA_LOG_RETENTION_BITES
+  - KAFKA_DELETE_TOPIC_ENABLE
+  - KAFKA_NUM_NETWORK_THREADS
+  - KAFKA_NUM_IO_THREADS
+  - KAFKA_NUM_REPLICA_FETCHERS
+  - KAFKA_DEFAULT_REPLICATION_FACTOR
+  - KAFKA_NUM_PARTITIONS
+  - KAFKA_BATCH_SIZE
+  
 persistencestorage:
   enabled: true
   size: 1Gi

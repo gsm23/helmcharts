@@ -13,7 +13,7 @@ minAvailable: 3
 
 image:
   repository: confluentinc/cp-kafka
-  kafka-version: 4.1.2
+  kafkaversion: 4.1.2
   tag: stable
   pullPolicy: IfNotPresent
   imagePullSecrets:
@@ -57,7 +57,7 @@ envlists:
   - KAFKA_DEFAULT_REPLICATION_FACTOR
   - KAFKA_NUM_PARTITIONS
   - KAFKA_BATCH_SIZE
-  
+
 persistencestorage:
   enabled: true
   size: 1Gi

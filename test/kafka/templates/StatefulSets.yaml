@@ -48,7 +48,7 @@ template:
             topologyKey: "kubernetes.io/hostname"
     containers:
     - name: {{ .Values.nameSpace }}-{{ .Values.Name }}
-      image: "{{ .Values.image.repository }}:{{ .Values.image.kafka-version }}"
+      image: "{{ .Values.image.repository }}:{{ .Values.image.kafkaversion }}"
       imagePullPolicy: "{{ .Values.image.imagePullPolicy }}"
       resources:
 {{ toYaml .Values.resources | indent 10 }}

@@ -62,5 +62,5 @@ template:
       env:
       {{- range $ky,$vl := .Values.envlists }}
       - name: {{ $ky }}
-       value: {{ $vl | quote }}
+        value: {{ $vl | quote }}
       {{- end }}

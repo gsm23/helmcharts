@@ -62,5 +62,5 @@ template:
       env:
          {{- range .Values.envlists.keys }}
          - name: {{ . | title | quote }}
-           value: {{ .Values.envlists.keys. }}
+           value: {{ .Values.envlists.values }}
          {{- end }}

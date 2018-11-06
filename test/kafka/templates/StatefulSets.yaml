@@ -60,7 +60,7 @@ template:
       - -c
       - "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://{{ .Values.nameSpace }}-{{ .Values.Name }}-${HOSTNAME##*-}.{{ .Values.nameSpace }}-{{ .Values.Name }}-svc.{{ .Values.nameSpace }}.svc.cluster.local:{{ .Values.Configuration.containerPort}}
       env:
-         {{- range $ky,$vl := .Values.envlists }}
-         - name: {{ $ky }}
-           value: {{ $vl | quote }}
-         {{- end }}
+      {{- range $ky,$vl := .Values.envlists }}
+      - name: {{ $ky }}
+       value: {{ $vl | quote }}
+      {{- end }}

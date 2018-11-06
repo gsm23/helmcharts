@@ -49,7 +49,7 @@ envlists:
   - name: KAFKA_OPTS
     value: "-Dlogging.level=INFO"
   - name: JMX_PORT
-    value: value: "9096"
+    value: "9096"
   - name: KAFKA_JMX_OPTS
     value: ""
   - name: KAFKA_LOG_RETENTION_BITES

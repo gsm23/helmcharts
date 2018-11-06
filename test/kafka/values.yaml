@@ -44,7 +44,7 @@ Configuration:
    PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
 
 envlists:
-  - KAFKA_HEAP_OPTS
+  - KAFKA_HEAP_OPTS : "adaqad"
   - KAFKA_OPTS
   - JMX_PORT
   - KAFKA_JMX_OPTS

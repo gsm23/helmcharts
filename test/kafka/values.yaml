@@ -10,6 +10,7 @@ nameSpace: preprod-es
 replicaCount: 3
 podManagementPolicy: OrderedReady
 minAvailable: 3
+secure:
 
 image:
   repository: confluentinc/cp-kafka
@@ -105,3 +106,19 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+## ------------------------------------------------------
+## Zookeeper
+## ------------------------------------------------------
+zookeeper:
+  ## If true, install the cp-zookeeper chart alongside cp-kafka
+  ## ref: ../zookeeper
+  enabled: true
+  servers: 3
+  persistence:
+    enabled: true
+    dataDirSize: 5Gi
+    dataLogDirSize: 5Gi
+
+  ## If the Zookeeper Chart is disabled a URL and port are required to connect
+url: ""

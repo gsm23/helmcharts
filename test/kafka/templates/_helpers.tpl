@@ -37,7 +37,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 */}}
 {{- define "kafka.zookeeper.fullname" -}}
 {{/*- $name := default "zookeeper" (index .Values "zookeeper" "nameOverride") -*/}}
-{{- $name := default zk .Values.Name -}}
+{{- $name := default "zk" .Values.Name -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 

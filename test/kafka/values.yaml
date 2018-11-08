@@ -6,7 +6,7 @@
 #Donot change the value of "Name" this is hardcoded  #
 Name: kafka                                          #
 ######################################################
-nameSpace: prees
+nameSpace: preprod-es
 replicaCount: 3
 podManagementPolicy: OrderedReady
 minAvailable: 3

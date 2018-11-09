@@ -61,6 +61,9 @@ envlists:
 persistencestorage:
   enabled: true
   size: 1Gi
+  DataDir: /var/lib/kafka
+  cfgvol: /etc/kafkaconf
+
   # storageClass: ""
 
 ## Kafka JVM Heap Configuration Option

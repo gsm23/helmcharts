@@ -78,6 +78,10 @@ template:
           emptyDir: {}
         {{- end }}
         - name: cfgvol
-          mountPath: /etc/kafkaconf
+        {{- if .Values.persistencestorage.enabled }}
+          mountPath: {{ .Values.persistencestorage.cfgvol }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}  
     volumes:
       - name: cfgvol

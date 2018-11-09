@@ -58,11 +58,25 @@ envlists:
   KAFKA_NUM_PARTITIONS: 3
   KAFKA_BATCH_SIZE: 16384
 
+# Configuration to enable SSL in kafka
+sslenabled: true
+sslenvlists:
+  ZOOKEEPER_SASL_ENABLED: FALSE
+  KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SSL
+  KAFKA_SSL_CLIENT_AUTH: required
+  KAFKA_SSL_KEY_CREDENTIALS: credential
+  KAFKA_SSL_KEYSTORE_CREDENTIALS: credential
+  KAFKA_SSL_TRUSTSTORE_CREDENTIALS: credential
+  KAFKA_SSL_KEYSTORE_FILENAME: kafka.server.keystore.jks
+  KAFKA_SSL_TRUSTSTORE_FILENAME: kafka.server.truststore.jks
+
+#Storage configuration
 persistencestorage:
   enabled: true
   size: 3Gi
   DataDir: /var/lib/kafka
   cfgvol: /etc/kafkaconf
+  sslvol: /etc/kafka/secrets
 
   # storageClass: ""
 

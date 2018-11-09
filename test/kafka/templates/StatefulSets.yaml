@@ -7,12 +7,12 @@ metadata:
     chart: {{ template "kafka.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-    spec:
-      serviceName: {{ .Values.nameSpace }}-{{ .Values.Name }}-svc
-      podManagementPolicy: {{ .Values.podManagementPolicy }}
-      replicas: {{ default 3 .Values.replicaCount }}
-      updateStrategy:
-        type: {{ .Values.update.updateStrategy }}
+spec:
+  serviceName: {{ .Values.nameSpace }}-{{ .Values.Name }}-svc
+  podManagementPolicy: {{ .Values.podManagementPolicy }}
+  replicas: {{ default 3 .Values.replicaCount }}
+  updateStrategy:
+    type: {{ .Values.update.updateStrategy }}
     #        rollingParams:
     #        updatePeriodSeconds: {{ .Values.update.updatePeriodSeconds }}
     #        intervalSeconds: {{ .Values.update.intervalSeconds }}
@@ -24,78 +24,78 @@ metadata:
     # uniquely defined for the pod, in this case the "version" label,
     # then we need to redefine the matchLabels and eliminate the version
     # field from there.
-template:
-  metadata:
-    labels:
-      app: {{ .Values.nameSpace }}-{{ .Values.Name }}
-      release: {{ .Release.Name }}
-  spec:
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 1
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-                - key: "app"
-                  operator: In
-                  values:
-                  - {{ .Values.nameSpace }}-{{ .Values.Name }}
-                - key: "release"
-                  operator: In
-                  values:
-                  - {{ .Release.Name }}
-            topologyKey: "kubernetes.io/hostname"
-    containers:
-    - name: {{ .Values.nameSpace }}-{{ .Values.Name }}
-      image: "{{ .Values.image.repository }}:{{ .Values.image.kafkaversion }}"
-      imagePullPolicy: "{{ .Values.image.imagePullPolicy }}"
-      resources:
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.nameSpace }}-{{ .Values.Name }}
+        release: {{ .Release.Name }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - {{ .Values.nameSpace }}-{{ .Values.Name }}
+                  - key: "release"
+                    operator: In
+                    values:
+                    - {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: {{ .Values.nameSpace }}-{{ .Values.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.kafkaversion }}"
+        imagePullPolicy: "{{ .Values.image.imagePullPolicy }}"
+        resources:
 {{ toYaml .Values.resources | indent 10 }}
-      ports:
-      - containerPort: "{{ .Values.Configuration.containerPort }}"
-        name: {{ .Values.nameSpace }}-{{ .Values.Name }}
-      command:
-      - sh
-      - -c
-      - "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://{{ .Values.nameSpace }}-{{ .Values.Name }}-${HOSTNAME##*-}.{{ .Values.nameSpace }}-{{ .Values.Name }}-svc.{{ .Values.nameSpace }}.svc.cluster.local:{{ .Values.Configuration.containerPort}} KAFKA_BROKER_ID=${HOSTNAME##*-} /etc/confluent/docker/run"
-      env:
-      - name: KAFKA_ZOOKEEPER_CONNECT
-        valueFrom:
-          configMapKeyRef:
-            name: {{ .Values.nameSpace }}-zk-cm
-            key: servers
-      {{- range $ky,$vl := .Values.envlists }}
-      - name: {{ $ky }}
-        value: {{ $vl | quote }}
-      {{- end }}
+        ports:
+        - containerPort: "{{ .Values.Configuration.containerPort }}"
+          name: {{ .Values.nameSpace }}-{{ .Values.Name }}
+        command:
+        - sh
+        - -c
+        - "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://{{ .Values.nameSpace }}-{{ .Values.Name }}-${HOSTNAME##*-}.{{ .Values.nameSpace }}-{{ .Values.Name }}-svc.{{ .Values.nameSpace }}.svc.cluster.local:{{ .Values.Configuration.containerPort}} KAFKA_BROKER_ID=${HOSTNAME##*-} /etc/confluent/docker/run"
+        env:
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.nameSpace }}-zk-cm
+              key: servers
+        {{- range $ky,$vl := .Values.envlists }}
+        - name: {{ $ky }}
+          value: {{ $vl | quote }}
+        {{- end }}
 
-      volumeMounts:
-        - name: datadir
-          mountPath: {{ .Values.persistencestorage.DataDir }}
+        volumeMounts:
+          - name: datadir
+            mountPath: {{ .Values.persistencestorage.DataDir }}
+          - name: cfgvol
+            mountPath: {{ .Values.persistencestorage.cfgvol }}
+      volumes:
         - name: cfgvol
-          mountPath: {{ .Values.persistencestorage.cfgvol }}
-    volumes:
-      - name: cfgvol
-        emptyDir: {}
-    {{- if not .Values.persistencestorage.enabled }}
-      -name: datadir
-       emptyDir: {}
-    {{- end }}
-{{- if .Values.persistencestorage.enabled }}
-volumeClaimTemplates:
-- metadata:
-    name: datadir
-  spec:
-    accessModes: [ "ReadWriteOnce" ]
-    resources:
-      requests:
-        storage: "{{ .Values.persistencestorage.size }}"
-    {{- if .Values.persistencestorage.storageClass }}
-    {{- if (eq "-" .Values.persistencestorage.storageClass) }}
-    storageClassName: ""
-    {{- else }}
-    storageClassName: "{{ .Values.persistencestorage.storageClass }}"
-    {{- end }}
-    {{- end }}
-{{- end }}
+          emptyDir: {}
+      {{- if not .Values.persistencestorage.enabled }}
+        -name: datadir
+         emptyDir: {}
+      {{- end }}
+  {{- if .Values.persistencestorage.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: datadir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: "{{ .Values.persistencestorage.size }}"
+      {{- if .Values.persistencestorage.storageClass }}
+      {{- if (eq "-" .Values.persistencestorage.storageClass) }}
+      storageClassName: ""
+      {{- else }}
+      storageClassName: "{{ .Values.persistencestorage.storageClass }}"
+      {{- end }}
+      {{- end }}
+  {{- end }}

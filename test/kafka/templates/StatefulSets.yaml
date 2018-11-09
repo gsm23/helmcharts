@@ -72,7 +72,7 @@ template:
 
       volumeMounts:
         - name: datadir
-        {{- if .Values.persistencestorage.enabled -}}
+        {{- if .Values.persistencestorage.enabled -*}}
           mountPath: {{ .Values.persistencestorage.DataDir | quote }}
         {{- else }}
           mountPath: {}

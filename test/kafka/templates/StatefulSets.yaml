@@ -72,7 +72,11 @@ template:
 
       volumeMounts:
         - name: datadir
-          mountPath: /var/lib/kafka
+        {{- if .Values.persistencestorage.enabled -}}
+          mountPath: {{ .Values.persistencestorage.DataDir | quote }}
+        {{- else -}}
+          mountPath: {}
+        {{- end }}     
         - name: cfgvol
           mountPath: /etc/kafkaconf
     volumes:

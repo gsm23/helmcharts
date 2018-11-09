@@ -77,7 +77,6 @@ template:
         {{- else }}
           emptyDir: {}
         {{- end }}
-        {{- end }}
         - name: cfgvol
           mountPath: /etc/kafkaconf
     volumes:

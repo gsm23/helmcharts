@@ -59,8 +59,8 @@ envlists:
   KAFKA_BATCH_SIZE: 16384
 
 persistencestorage:
-  enabled: false
-  size: 1Gi
+  enabled: true
+  size: 3Gi
   DataDir: /var/lib/kafka
   cfgvol: /etc/kafkaconf
 

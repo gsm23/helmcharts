@@ -1,0 +1,9 @@
+dependencies:
+- name: kafka
+  version: 0.1.0
+  repository: file://./kafka
+  condition: kafka.enabled
+- name: zookeeper
+  version: 0.1.0
+  repository: file://./zookeeper
+  condition: zookeeper.enabled
